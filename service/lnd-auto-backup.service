@@ -1,0 +1,23 @@
+# inspired by https://bartsimons.me/sync-folders-and-files-on-linux-with-rsync-and-inotify/
+
+[Unit]
+Description=LNDAutoBackupService
+After=network.target
+
+[Service]
+PIDFile=/run/lnd-auto-backup-service/lnd-auto-backup-service.pid
+User=root
+Group=root
+WorkingDirectory=/root
+ExecStartPre=/bin/mkdir /run/lnd-auto-backup-service
+ExecStartPre=/bin/chown -R root:root /run/lnd-auto-backup-service
+ExecStart=/bin/bash /root/lnd-auto-backup/monitor.sh
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+ExecStopPost=/bin/rm -rf /run/lnd-auto-backup-service
+PrivateTmp=true
+Environment=LND_AUTO_BACKUP_LAUNCHED_BY_SYSTEMD=1
+SyslogIdentifier=lnd-auto-backup
+
+[Install]
+WantedBy=multi-user.target
