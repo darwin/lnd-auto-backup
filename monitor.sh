@@ -2,8 +2,6 @@
 
 set -e -o pipefail
 
-LAUNCH_DIR=$(pwd -P)
-
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
 ROOT_DIR="$(pwd -P)"
