@@ -17,11 +17,11 @@ fi
 LND_HOME=${LND_HOME:-$HOME/.lnd}
 LND_NETWORK=${LND_NETWORK:-mainnet}
 LND_CHAIN=${LND_CHAIN:-bitcoin}
-LND_BACKUP_SCRIPT=${LND_BACKUP_SCRIPT:-$ROOT_DIR/backup-via-s3.sh}
 LNDAB_CHANNEL_BACKUP_PATH=${LNDAB_CHANNEL_BACKUP_PATH:-"$LND_HOME/data/chain/$LND_CHAIN/$LND_NETWORK/channel.backup"}
+LNDAB_BACKUP_SCRIPT=${LNDAB_BACKUP_SCRIPT:-$ROOT_DIR/backup-via-s3.sh}
 
-if [[ ! -e "$LND_BACKUP_SCRIPT" ]]; then
-  echo "the backup script does not exist at '$LND_BACKUP_SCRIPT'"
+if [[ ! -e "$LNDAB_BACKUP_SCRIPT" ]]; then
+  echo "the backup script does not exist at '$LNDAB_BACKUP_SCRIPT'"
   exit 1
 fi
 
@@ -30,7 +30,7 @@ fi
 trigger_backup() {
   local backup_label=$1
   local file=$2
-  ${LND_BACKUP_SCRIPT} ${backup_label} "$(realpath ${file})"
+  ${LNDAB_BACKUP_SCRIPT} ${backup_label} "$(realpath ${file})"
 }
 
 backup_label() {
