@@ -11,7 +11,6 @@ WorkingDirectory=/root
 ExecStart=/bin/bash /root/lnd-auto-backup/monitor.sh
 ExecReload=/bin/kill -s HUP $MAINPID
 ExecStop=/bin/kill -s TERM $MAINPID
-PrivateTmp=true
 Environment=LNDAB_LAUNCHED_BY_SYSTEMD=1
 SyslogIdentifier=lnd-auto-backup
 
