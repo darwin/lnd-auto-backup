@@ -16,7 +16,7 @@ ExecReload=/bin/kill -s HUP $MAINPID
 ExecStop=/bin/kill -s TERM $MAINPID
 ExecStopPost=/bin/rm -rf /run/lnd-auto-backup-service
 PrivateTmp=true
-Environment=LND_AUTO_BACKUP_LAUNCHED_BY_SYSTEMD=1
+Environment=LNDAB_LAUNCHED_BY_SYSTEMD=1
 SyslogIdentifier=lnd-auto-backup
 
 [Install]

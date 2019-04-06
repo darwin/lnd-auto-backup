@@ -20,7 +20,7 @@ Tested on my Ubuntu 18.10 server only.
 
 ```
 # note: S3 access must be configured via `aws configure`
-export LAB_S3_BUCKET=your_bucket_name
+export LNDAB_S3_BUCKET=your_bucket_name
 
 # these are optional:
 #
@@ -28,6 +28,8 @@ export LAB_S3_BUCKET=your_bucket_name
 #   export LND_NETWORK=mainnet
 #   export LND_CHAIN=bitcoin
 #   export LND_BACKUP_SCRIPT=./backup-via-s3.sh
+#   # or if you really need to force it explictly
+#   export LNDAB_CHANNEL_BACKUP_PATH=/custom/path/to/channel.backup
 ```
 4. `aws configure` and configure secrets for your AWS S3 account
 5. `./service/install.sh`
