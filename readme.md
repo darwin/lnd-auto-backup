@@ -33,9 +33,9 @@ export LNDAB_S3_BUCKET=your_bucket_name
 ```
 4. `aws configure` and configure secrets for your AWS S3 account
 5. `./service/install.sh`
-5. `./service/control.sh start` - start it!
-6. `./service/control.sh status` - just to check the status 
-7. `./service/control.sh enable` - if it looks good, enable service launching after system restart
+5. `./service/start.sh` - start it!
+6. `./service/status.sh` - just to check the status 
+7. `./service/enable.sh` - if it looks good, enable service launching after system restart
 
 #### See logs
 
