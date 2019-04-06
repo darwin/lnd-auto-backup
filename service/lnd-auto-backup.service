@@ -5,13 +5,14 @@ Description=LNDAutoBackupService
 After=network.target
 
 [Service]
+Environment=LNDAB_HOME=/root/lnd-auto-backup
+Environment=LNDAB_LAUNCHED_BY_SYSTEMD=1
 User=root
 Group=root
-WorkingDirectory=/root
-ExecStart=/bin/bash /root/lnd-auto-backup/monitor.sh
+WorkingDirectory=$LNDAB_HOME
+ExecStart=/bin/bash $LNDAB_HOME/monitor.sh
 ExecReload=/bin/kill -s HUP $MAINPID
 ExecStop=/bin/kill -s TERM $MAINPID
-Environment=LNDAB_LAUNCHED_BY_SYSTEMD=1
 SyslogIdentifier=lnd-auto-backup
 
 [Install]

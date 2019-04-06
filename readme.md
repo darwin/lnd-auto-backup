@@ -32,10 +32,11 @@ export LNDAB_S3_BUCKET=your_bucket_name
 #   export LNDAB_CHANNEL_BACKUP_PATH=/custom/path/to/channel.backup
 ```
 4. `aws configure` and configure secrets for your AWS S3 account
-5. `./service/install.sh`
-5. `./service/start.sh` - start it!
-6. `./service/status.sh` - just to check the status 
-7. `./service/enable.sh` - if it looks good, enable service launching after system restart
+5. modify `LNDAB_HOME` in `./service/lnd-auto-backup.service` to point to right directory
+6. `./service/install.sh`
+7. `./service/start.sh` - start it!
+8. `./service/status.sh` - just to check the status 
+9. `./service/enable.sh` - if it looks good, enable service launching after system restart
 
 #### See logs
 
