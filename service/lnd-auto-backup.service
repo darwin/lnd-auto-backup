@@ -9,7 +9,7 @@ Environment=LNDAB_HOME=/root/lnd-auto-backup
 Environment=LNDAB_LAUNCHED_BY_SYSTEMD=1
 User=root
 Group=root
-ExecStart=/bin/bash $LNDAB_HOME/monitor.sh
+ExecStart=/bin/bash -c '${LNDAB_HOME}/monitor.sh'
 ExecReload=/bin/kill -s HUP $MAINPID
 ExecStop=/bin/kill -s TERM $MAINPID
 SyslogIdentifier=lnd-auto-backup
