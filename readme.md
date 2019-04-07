@@ -2,11 +2,14 @@
 
 This is a quick and dirty channel backup systemd service for a running LND node. 
 It uploads `channel.backup` to a S3 bucket. It uses `inotifywait`
-for monitoring for changes and does a new time-stamped backup on each modification.
+for monitoring changes and does a new time-stamped backup on each modification.
 
 See [https://github.com/lightningnetwork/lnd/pull/2313](https://github.com/lightningnetwork/lnd/pull/2313) for details.
 
-Tested on my Ubuntu 18.10 server only.
+#### More reading
+
+* [Alex Bosworth's exampe](https://twitter.com/alexbosworth/status/1114650312592072704)
+* [Patrick Lemke's medium post](https://medium.com/@patricklemke95/how-to-backup-your-lightning-network-channels-170c995c157b)
 
 ### Prerequisites
 
@@ -46,3 +49,7 @@ export LNDAB_S3_BUCKET=your_bucket_name
 
 1. source `.envrc` or better use `direnv`
 2. `./monitor.sh`
+
+---
+
+Tested on my Ubuntu 18.10 server only.
