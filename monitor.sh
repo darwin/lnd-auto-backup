@@ -20,16 +20,34 @@ LNDAB_BACKUP_SCRIPT=${LNDAB_BACKUP_SCRIPT:-$ROOT_DIR/backup-via-s3.sh}
 LNDAB_FILE_CREATION_POLLING_TIME=${LNDAB_FILE_CREATION_POLLING_TIME:-1}
 LNDAB_INOTIFYWAIT_OPTS=${LNDAB_INOTIFYWAIT_OPTS:-"-q -e close_write"}
 
+LNDAB_NOERR=0
+LNDAB_BACKUP_SCRIPT_NOT_FOUND=10
+LNDAB_CHANNEL_BACKUP_FILE_DELETED=11
+LNDAB_INOTIFYWAIT_FAILED=12
+
 if [[ ! -e "$LNDAB_BACKUP_SCRIPT" ]]; then
   echo "the backup script does not exist at '$LNDAB_BACKUP_SCRIPT'"
-  exit 1
+  exit ${LNDAB_BACKUP_SCRIPT_NOT_FOUND}
 fi
 
 # ---------------------------------------------------------------------------------------------------------------------------
 
 wait_for_changes() {
   systemd-notify STATUS="waiting for changes in '$LNDAB_CHANNEL_BACKUP_PATH'"
+  set +e
   inotifywait ${LNDAB_INOTIFYWAIT_OPTS} "$LNDAB_CHANNEL_BACKUP_PATH"
+  local inotifywait_status=$?
+  set -e
+  if [[ ! ${inotifywait_status} -eq 0 ]]; then
+    # inotifywait failed for some reason...
+    if [[ ! -e "$LNDAB_CHANNEL_BACKUP_PATH" ]]; then
+      # this reports special case of deleted file
+      echo "monitored file '$LNDAB_CHANNEL_BACKUP_PATH' was unexpectedly deleted"
+      exit ${LNDAB_CHANNEL_BACKUP_FILE_DELETED}
+    fi
+    echo "inotifywait failed with status code ${inotifywait_status}"
+    exit ${LNDAB_INOTIFYWAIT_FAILED}
+  fi
 }
 
 wait_for_creation() {
