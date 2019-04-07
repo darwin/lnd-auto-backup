@@ -28,10 +28,12 @@ fi
 # ---------------------------------------------------------------------------------------------------------------------------
 
 wait_for_changes() {
+  systemd-notify STATUS="waiting for changes in '$LNDAB_CHANNEL_BACKUP_PATH'"
   inotifywait ${LNDAB_INOTIFYWAIT_OPTS} "$LNDAB_CHANNEL_BACKUP_PATH"
 }
 
 wait_for_creation() {
+  systemd-notify STATUS="waiting for creation of '$LNDAB_CHANNEL_BACKUP_PATH'"
   until [[ -e "$LNDAB_CHANNEL_BACKUP_PATH" ]]; do
     sleep ${LNDAB_FILE_CREATION_POLLING_TIME}
   done
@@ -44,6 +46,7 @@ generate_backup_label() {
 
 perform_backup() {
   local new_label=$(generate_backup_label)
+  systemd-notify STATUS="performing backup of '$LNDAB_CHANNEL_BACKUP_PATH' as '$new_label' using '$LNDAB_BACKUP_SCRIPT'"
   ${LNDAB_BACKUP_SCRIPT} "$new_label" ${LNDAB_CHANNEL_BACKUP_PATH}
 }
 
@@ -53,6 +56,8 @@ function finish {
   echo "finished monitoring '$LNDAB_CHANNEL_BACKUP_PATH'"
 }
 trap finish EXIT
+
+systemd-notify READY=1
 
 echo
 echo "======================================================================================================================="
