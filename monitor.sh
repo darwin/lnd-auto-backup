@@ -25,15 +25,13 @@ fi
 
 # ---------------------------------------------------------------------------------------------------------------------------
 
-trigger_backup() {
-  local backup_label=$1
-  local file=$2
-  ${LNDAB_BACKUP_SCRIPT} ${backup_label} "$(realpath ${file})"
-}
-
 backup_label() {
   local stamp=$(date -d "today" +"%Y%m%d_%H%M_%S")
   echo "${LND_CHAIN}_${LND_NETWORK}_${stamp}_channel.backup"
+}
+
+perform_backup() {
+  ${LNDAB_BACKUP_SCRIPT} "$(backup_label)" ${LNDAB_CHANNEL_BACKUP_PATH}
 }
 
 # ---------------------------------------------------------------------------------------------------------------------------
@@ -53,10 +51,9 @@ if [[ ! -e "$LNDAB_CHANNEL_BACKUP_PATH" ]]; then
   until [[ -e "$LNDAB_CHANNEL_BACKUP_PATH" ]]; do
     sleep 1
   done
-  trigger_backup "$(backup_label)" ${LNDAB_CHANNEL_BACKUP_PATH}
+  perform_backup
 fi
 
 while inotifywait -e close_write "$LNDAB_CHANNEL_BACKUP_PATH"; do
-  trigger_backup "$(backup_label)" ${LNDAB_CHANNEL_BACKUP_PATH}
+  perform_backup
 done
-
