@@ -7,10 +7,12 @@ After=network.target
 [Service]
 Environment=LNDAB_HOME=/root/lnd-auto-backup
 Environment=LNDAB_LAUNCHED_BY_SYSTEMD=1
-User=root
-Group=root
 ExecStart=/bin/bash -c '${LNDAB_HOME}/monitor.sh'
 SyslogIdentifier=lnd-auto-backup
+Restart=always
+RestartSec=1
+User=root
+Group=root
 
 [Install]
 WantedBy=multi-user.target
