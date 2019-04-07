@@ -3,6 +3,7 @@
     <words>
       <w>bitcoin</w>
       <w>envrc</w>
+      <w>inotifywait</w>
       <w>lndab</w>
       <w>mainnet</w>
       <w>systemd</w>

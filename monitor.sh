@@ -18,6 +18,7 @@ LND_CHAIN=${LND_CHAIN:-bitcoin}
 LNDAB_CHANNEL_BACKUP_PATH=${LNDAB_CHANNEL_BACKUP_PATH:-"$LND_HOME/data/chain/$LND_CHAIN/$LND_NETWORK/channel.backup"}
 LNDAB_BACKUP_SCRIPT=${LNDAB_BACKUP_SCRIPT:-$ROOT_DIR/backup-via-s3.sh}
 LNDAB_FILE_CREATION_POLLING_TIME=${LNDAB_FILE_CREATION_POLLING_TIME:-1}
+LNDAB_INOTIFYWAIT_OPTS=${LNDAB_INOTIFYWAIT_OPTS:-"-e close_write"}
 
 if [[ ! -e "$LNDAB_BACKUP_SCRIPT" ]]; then
   echo "the backup script does not exist at '$LNDAB_BACKUP_SCRIPT'"
@@ -27,7 +28,7 @@ fi
 # ---------------------------------------------------------------------------------------------------------------------------
 
 wait_for_changes() {
-  inotifywait -e close_write "$LNDAB_CHANNEL_BACKUP_PATH"
+  inotifywait ${LNDAB_INOTIFYWAIT_OPTS} "$LNDAB_CHANNEL_BACKUP_PATH"
 }
 
 wait_for_creation() {
