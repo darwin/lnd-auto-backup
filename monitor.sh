@@ -25,6 +25,10 @@ fi
 
 # ---------------------------------------------------------------------------------------------------------------------------
 
+wait_for_changes() {
+  inotifywait -e close_write "$LNDAB_CHANNEL_BACKUP_PATH"
+}
+
 generate_backup_label() {
   local stamp=$(date -d "today" +"%Y%m%d_%H%M_%S")
   echo "${LND_CHAIN}_${LND_NETWORK}_${stamp}_channel.backup"
@@ -55,6 +59,6 @@ if [[ ! -e "$LNDAB_CHANNEL_BACKUP_PATH" ]]; then
   perform_backup
 fi
 
-while inotifywait -e close_write "$LNDAB_CHANNEL_BACKUP_PATH"; do
+while wait_for_changes; do
   perform_backup
 done
