@@ -17,6 +17,7 @@ LND_NETWORK=${LND_NETWORK:-mainnet}
 LND_CHAIN=${LND_CHAIN:-bitcoin}
 LNDAB_CHANNEL_BACKUP_PATH=${LNDAB_CHANNEL_BACKUP_PATH:-"$LND_HOME/data/chain/$LND_CHAIN/$LND_NETWORK/channel.backup"}
 LNDAB_BACKUP_SCRIPT=${LNDAB_BACKUP_SCRIPT:-$ROOT_DIR/backup-via-s3.sh}
+LNDAB_FILE_CREATION_POLLING_TIME=${LNDAB_FILE_CREATION_POLLING_TIME:-1}
 
 if [[ ! -e "$LNDAB_BACKUP_SCRIPT" ]]; then
   echo "the backup script does not exist at '$LNDAB_BACKUP_SCRIPT'"
@@ -27,6 +28,12 @@ fi
 
 wait_for_changes() {
   inotifywait -e close_write "$LNDAB_CHANNEL_BACKUP_PATH"
+}
+
+wait_for_creation() {
+  until [[ -e "$LNDAB_CHANNEL_BACKUP_PATH" ]]; do
+    sleep ${LNDAB_FILE_CREATION_POLLING_TIME}
+  done
 }
 
 generate_backup_label() {
@@ -53,9 +60,7 @@ echo "monitoring '$LNDAB_CHANNEL_BACKUP_PATH'"
 
 if [[ ! -e "$LNDAB_CHANNEL_BACKUP_PATH" ]]; then
   echo "waiting for '$LNDAB_CHANNEL_BACKUP_PATH' to be created..."
-  until [[ -e "$LNDAB_CHANNEL_BACKUP_PATH" ]]; do
-    sleep 1
-  done
+  wait_for_creation
   perform_backup
 fi
 
