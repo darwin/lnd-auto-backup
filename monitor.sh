@@ -25,13 +25,14 @@ fi
 
 # ---------------------------------------------------------------------------------------------------------------------------
 
-backup_label() {
+generate_backup_label() {
   local stamp=$(date -d "today" +"%Y%m%d_%H%M_%S")
   echo "${LND_CHAIN}_${LND_NETWORK}_${stamp}_channel.backup"
 }
 
 perform_backup() {
-  ${LNDAB_BACKUP_SCRIPT} "$(backup_label)" ${LNDAB_CHANNEL_BACKUP_PATH}
+  local new_label=$(generate_backup_label)
+  ${LNDAB_BACKUP_SCRIPT} "$new_label" ${LNDAB_CHANNEL_BACKUP_PATH}
 }
 
 # ---------------------------------------------------------------------------------------------------------------------------
