@@ -8,7 +8,7 @@ See [https://github.com/lightningnetwork/lnd/pull/2313](https://github.com/light
 
 #### More reading
 
-* [Alex Bosworth's exampe](https://twitter.com/alexbosworth/status/1114650312592072704)
+* [Alex Bosworth's example](https://twitter.com/alexbosworth/status/1114650312592072704)
 * [Patrick Lemke's medium post](https://medium.com/@patricklemke95/how-to-backup-your-lightning-network-channels-170c995c157b)
 
 ### Prerequisites
