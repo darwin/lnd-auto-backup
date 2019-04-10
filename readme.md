@@ -1,8 +1,10 @@
 # LND auto backup service
 
-This is a channel backup script for LND node prepared to be installed as a systemd service. 
-It uses `inotifywait` to monitor for changes and does a new time-stamped backup on each modification.
-Backup script can do anything. We provide optional backup to S3 or via rsync. Or you can specify your custom script.
+This is a channel backup script for LND node (prepared to be installed as a systemd service). 
+
+The script uses `inotifywait` to monitor for file changes and triggers a new time-stamped backup when needed.
+The backup script can do anything. As an example, we provide optional backup to Amazon S3 or via rsync. 
+Or you can specify your own custom script.
 
 See [https://github.com/lightningnetwork/lnd/pull/2313](https://github.com/lightningnetwork/lnd/pull/2313) for details.
 
@@ -39,10 +41,10 @@ export LNDAB_CUSTOM_BACKUP_SCRIPT=path/to/your/script.sh
 #   export LND_HOME=/root/.lnd # if differs from $HOME/.lnd
 #   export LND_NETWORK=mainnet
 #   export LND_CHAIN=bitcoin
+#   export LNDAB_CHANNEL_BACKUP_PATH=/custom/path/to/channel.backup
 #   export LNDAB_VERBOSE=1
 #   export LNDAB_S3_BACKUP_SCRIPT=./backup-via-s3.sh
 #   export LNDAB_RSYNC_BACKUP_SCRIPT=./backup-via-rsync.sh
-#   export LNDAB_CHANNEL_BACKUP_PATH=/custom/path/to/channel.backup
 ```
 4. modify `LNDAB_HOME` in `./service/lnd-auto-backup.service` to point to right directory
 5. `./service/install.sh`
@@ -61,4 +63,5 @@ export LNDAB_CUSTOM_BACKUP_SCRIPT=path/to/your/script.sh
 
 ---
 
-Tested on my Ubuntu 18.10 server only.
+Tested on Ubuntu 18.10 server. My lnd node runs in a docker container and I use this service to monitor changes of 
+`channel.backup` file mapped to host machine via a docker volume.
