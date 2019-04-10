@@ -48,8 +48,14 @@ fi
 
 # ---------------------------------------------------------------------------------------------------------------------------
 
+notify() {
+  if [[ -n "$LNDAB_LAUNCHED_BY_SYSTEMD" ]]; then
+    systemd-notify "$@"
+  fi
+}
+
 wait_for_creation() {
-  systemd-notify STATUS="waiting for creation of '$LNDAB_CHANNEL_BACKUP_PATH'"
+  notify STATUS="waiting for creation of '$LNDAB_CHANNEL_BACKUP_PATH'"
   until [[ -e "$LNDAB_CHANNEL_BACKUP_PATH" ]]; do
     sleep ${LNDAB_FILE_CREATION_POLLING_TIME}
   done
@@ -63,15 +69,15 @@ generate_backup_label() {
 perform_backup() {
   local new_label=$(generate_backup_label)
   if [[ -n "$LNDAB_S3_BUCKET" ]]; then
-    systemd-notify STATUS="performing backup of '$LNDAB_CHANNEL_BACKUP_PATH' as '$new_label' using '$LNDAB_S3_BACKUP_SCRIPT'"
+    notify STATUS="performing backup of '$LNDAB_CHANNEL_BACKUP_PATH' as '$new_label' using '$LNDAB_S3_BACKUP_SCRIPT'"
     ${LNDAB_S3_BACKUP_SCRIPT} "$new_label" ${LNDAB_CHANNEL_BACKUP_PATH}
   fi
   if [[ -n "$LNDAB_RSYNC_TARGET" ]]; then
-    systemd-notify STATUS="performing backup of '$LNDAB_CHANNEL_BACKUP_PATH' as '$new_label' using '$LNDAB_RSYNC_BACKUP_SCRIPT'"
+    notify STATUS="performing backup of '$LNDAB_CHANNEL_BACKUP_PATH' as '$new_label' using '$LNDAB_RSYNC_BACKUP_SCRIPT'"
     ${LNDAB_RSYNC_BACKUP_SCRIPT} "$new_label" ${LNDAB_CHANNEL_BACKUP_PATH}
   fi
   if [[ -n "$LNDAB_CUSTOM_BACKUP_SCRIPT" ]]; then
-    systemd-notify STATUS="performing backup of '$LNDAB_CHANNEL_BACKUP_PATH' as '$new_label' using '$LNDAB_CUSTOM_BACKUP_SCRIPT'"
+    notify STATUS="performing backup of '$LNDAB_CHANNEL_BACKUP_PATH' as '$new_label' using '$LNDAB_CUSTOM_BACKUP_SCRIPT'"
     ${LNDAB_CUSTOM_BACKUP_SCRIPT} "$new_label" ${LNDAB_CHANNEL_BACKUP_PATH}
   fi
 }
@@ -83,7 +89,7 @@ do_missing_channel_backup_workflow() {
 }
 
 start_monitoring_changes() {
-  systemd-notify STATUS="waiting for changes in '$LNDAB_CHANNEL_BACKUP_PATH'"
+  notify STATUS="waiting for changes in '$LNDAB_CHANNEL_BACKUP_PATH'"
 
   # The idea is to continuously monitor channel.backup via inotifywait and decide what to do by analyzing the output.
 
@@ -145,7 +151,7 @@ function finish {
 }
 trap finish EXIT
 
-systemd-notify READY=1
+notify READY=1
 
 echo
 echo "======================================================================================================================="
