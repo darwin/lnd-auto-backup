@@ -17,19 +17,31 @@ LND_NETWORK=${LND_NETWORK:-mainnet}
 LND_CHAIN=${LND_CHAIN:-bitcoin}
 LNDAB_VERBOSE=${LNDAB_VERBOSE}
 LNDAB_CHANNEL_BACKUP_PATH=${LNDAB_CHANNEL_BACKUP_PATH:-"$LND_HOME/data/chain/$LND_CHAIN/$LND_NETWORK/channel.backup"}
-LNDAB_BACKUP_SCRIPT=${LNDAB_BACKUP_SCRIPT:-$ROOT_DIR/backup-via-s3.sh}
 LNDAB_FILE_CREATION_POLLING_TIME=${LNDAB_FILE_CREATION_POLLING_TIME:-1}
 LNDAB_INOTIFYWAIT_OPTS=${LNDAB_INOTIFYWAIT_OPTS:-"-q"}
+
+LNDAB_S3_BUCKET=${LNDAB_S3_BUCKET}
+LNDAB_S3_BACKUP_SCRIPT=${LNDAB_S3_BACKUP_SCRIPT:-$ROOT_DIR/backup-via-s3.sh}
+
+LNDAB_RSYNC_TARGET=${LNDAB_RSYNC_TARGET}
+LNDAB_RSYNC_BACKUP_SCRIPT=${LNDAB_RSYNC_BACKUP_SCRIPT:-$ROOT_DIR/backup-via-rsync.sh}
+
+LNDAB_CUSTOM_BACKUP_SCRIPT=${LNDAB_CUSTOM_BACKUP_SCRIPT}
 
 LNDAB_NOERR=0
 LNDAB_BACKUP_SCRIPT_NOT_FOUND=10
 
-if [[ ! -e "$LNDAB_BACKUP_SCRIPT" ]]; then
-  echo "the backup script does not exist at '$LNDAB_BACKUP_SCRIPT'"
+if [[ ! -e "$LNDAB_S3_BACKUP_SCRIPT" ]]; then
+  echo "the backup script does not exist at '$LNDAB_S3_BACKUP_SCRIPT', check LNDAB_S3_BACKUP_SCRIPT"
   exit ${LNDAB_BACKUP_SCRIPT_NOT_FOUND}
 fi
 
+if [[ ! -e "$LNDAB_RSYNC_BACKUP_SCRIPT" ]]; then
+  echo "the backup script does not exist at '$LNDAB_RSYNC_BACKUP_SCRIPT', check LNDAB_RSYNC_BACKUP_SCRIPT"
+  exit ${LNDAB_BACKUP_SCRIPT_NOT_FOUND}
+fi
 
+# ---------------------------------------------------------------------------------------------------------------------------
 
 wait_for_creation() {
   systemd-notify STATUS="waiting for creation of '$LNDAB_CHANNEL_BACKUP_PATH'"
@@ -45,8 +57,19 @@ generate_backup_label() {
 
 perform_backup() {
   local new_label=$(generate_backup_label)
-  systemd-notify STATUS="performing backup of '$LNDAB_CHANNEL_BACKUP_PATH' as '$new_label' using '$LNDAB_BACKUP_SCRIPT'"
-  ${LNDAB_BACKUP_SCRIPT} "$new_label" ${LNDAB_CHANNEL_BACKUP_PATH}
+  if [[ -n "$LNDAB_S3_BUCKET" ]]; then
+    systemd-notify STATUS="performing backup of '$LNDAB_CHANNEL_BACKUP_PATH' as '$new_label' using '$LNDAB_S3_BACKUP_SCRIPT'"
+    ${LNDAB_S3_BACKUP_SCRIPT} "$new_label" ${LNDAB_CHANNEL_BACKUP_PATH}
+  fi
+  if [[ -n "$LNDAB_RSYNC_TARGET" ]]; then
+    systemd-notify STATUS="performing backup of '$LNDAB_CHANNEL_BACKUP_PATH' as '$new_label' using '$LNDAB_RSYNC_BACKUP_SCRIPT'"
+    ${LNDAB_RSYNC_BACKUP_SCRIPT} "$new_label" ${LNDAB_CHANNEL_BACKUP_PATH}
+  fi
+  if [[ -n "$LNDAB_CUSTOM_BACKUP_SCRIPT" ]]; then
+    systemd-notify STATUS="performing backup of '$LNDAB_CHANNEL_BACKUP_PATH' as '$new_label' using '$LNDAB_CUSTOM_BACKUP_SCRIPT'"
+    ${LNDAB_CUSTOM_BACKUP_SCRIPT} "$new_label" ${LNDAB_CHANNEL_BACKUP_PATH}
+  fi
+}
 
 do_missing_channel_backup_workflow() {
   echo "waiting for '$LNDAB_CHANNEL_BACKUP_PATH' to be created..."

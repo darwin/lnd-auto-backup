@@ -1,8 +1,8 @@
 # LND auto backup service
 
-This is a quick and dirty channel backup systemd service for a running LND node. 
-It uploads `channel.backup` to a S3 bucket. It uses `inotifywait`
-for monitoring changes and does a new time-stamped backup on each modification.
+This is a channel backup script for LND node prepared to be installed as a systemd service. 
+It uses `inotifywait` to monitor for changes and does a new time-stamped backup on each modification.
+Backup script can do anything. We provide optional backup to S3 or via rsync. Or you can specify your custom script.
 
 See [https://github.com/lightningnetwork/lnd/pull/2313](https://github.com/lightningnetwork/lnd/pull/2313) for details.
 
@@ -13,7 +13,7 @@ See [https://github.com/lightningnetwork/lnd/pull/2313](https://github.com/light
 
 ### Prerequisites
 
-* `apt install inotify-tools awscli`
+* `apt install inotify-tools`
 
 ### Setup
 
@@ -22,24 +22,33 @@ See [https://github.com/lightningnetwork/lnd/pull/2313](https://github.com/light
 3. create a `.envrc` with content:
 
 ```
-# note: S3 access must be configured via `aws configure`
-export LNDAB_S3_BUCKET=your_bucket_name
+# for S3 backup (optional)
+# also don't forget to `apt install awscli`
+# note: S3 secrets can be configured via `aws configure`
+export LNDAB_S3_BUCKET=your_bucket_name 
+
+# for rsync backup (optional)
+# note: ssh access keys must be configured on the machine
+export LNDAB_RSYNC_TARGET=user@server:/remote/path/to/backup/dir
+
+# for custom backup (optional)
+export LNDAB_CUSTOM_BACKUP_SCRIPT=path/to/your/script.sh 
 
 # these are optional:
 #
 #   export LND_HOME=/root/.lnd # if differs from $HOME/.lnd
 #   export LND_NETWORK=mainnet
 #   export LND_CHAIN=bitcoin
-#   export LND_BACKUP_SCRIPT=./backup-via-s3.sh
-#   # or if you really need to force it explictly
+#   export LNDAB_VERBOSE=1
+#   export LNDAB_S3_BACKUP_SCRIPT=./backup-via-s3.sh
+#   export LNDAB_RSYNC_BACKUP_SCRIPT=./backup-via-rsync.sh
 #   export LNDAB_CHANNEL_BACKUP_PATH=/custom/path/to/channel.backup
 ```
-4. `aws configure` and configure secrets for your AWS S3 account
-5. modify `LNDAB_HOME` in `./service/lnd-auto-backup.service` to point to right directory
-6. `./service/install.sh`
-7. `./service/start.sh` - start it!
-8. `./service/status.sh` - just to check the status 
-9. `./service/enable.sh` - if it looks good, enable service launching after system restart
+4. modify `LNDAB_HOME` in `./service/lnd-auto-backup.service` to point to right directory
+5. `./service/install.sh`
+6. `./service/start.sh` - start it!
+7. `./service/status.sh` - just to check the status 
+8. `./service/enable.sh` - if it looks good, enable service launching after system restart
 
 #### See logs
 
