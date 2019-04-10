@@ -31,13 +31,18 @@ LNDAB_CUSTOM_BACKUP_SCRIPT=${LNDAB_CUSTOM_BACKUP_SCRIPT}
 LNDAB_NOERR=0
 LNDAB_BACKUP_SCRIPT_NOT_FOUND=10
 
-if [[ ! -e "$LNDAB_S3_BACKUP_SCRIPT" ]]; then
+if [[ -n "$LNDAB_S3_BUCKET" && ! -e "$LNDAB_S3_BACKUP_SCRIPT" ]]; then
   echo "the backup script does not exist at '$LNDAB_S3_BACKUP_SCRIPT', check LNDAB_S3_BACKUP_SCRIPT"
   exit ${LNDAB_BACKUP_SCRIPT_NOT_FOUND}
 fi
 
-if [[ ! -e "$LNDAB_RSYNC_BACKUP_SCRIPT" ]]; then
+if [[ -n "$LNDAB_RSYNC_TARGET" && ! -e "$LNDAB_RSYNC_BACKUP_SCRIPT" ]]; then
   echo "the backup script does not exist at '$LNDAB_RSYNC_BACKUP_SCRIPT', check LNDAB_RSYNC_BACKUP_SCRIPT"
+  exit ${LNDAB_BACKUP_SCRIPT_NOT_FOUND}
+fi
+
+if [[ -n "$LNDAB_CUSTOM_BACKUP_SCRIPT" && ! -e "$LNDAB_CUSTOM_BACKUP_SCRIPT" ]]; then
+  echo "the backup script does not exist at '$LNDAB_CUSTOM_BACKUP_SCRIPT', check LNDAB_CUSTOM_BACKUP_SCRIPT"
   exit ${LNDAB_BACKUP_SCRIPT_NOT_FOUND}
 fi
 
