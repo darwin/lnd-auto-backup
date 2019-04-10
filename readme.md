@@ -52,14 +52,43 @@ export LNDAB_CUSTOM_BACKUP_SCRIPT=path/to/your/script.sh
 7. `./service/status.sh` - just to check the status 
 8. `./service/enable.sh` - if it looks good, enable service launching after system restart
 
-#### See logs
+### Typical workflow
+
+#### Run it directly (for testing)
+
+1. set env vars, or source `.envrc` or better use `direnv`
+2. `./monitor.sh`
+
+#### Check that the backup is working
+
+```sh
+touch /path/to/.lnd/data/chain/bitcoin/mainnet/channel.backup
+```
+
+#### See service logs
 
 `./service/logs.sh`
 
-#### Or just test it
+#### See service status
 
-1. source `.envrc` or better use `direnv`
-2. `./monitor.sh`
+`./service/status.sh`
+
+#### Stop the service
+
+`./service/stop.sh`
+
+#### Disable the service
+
+`./service/disable.sh`
+
+#### Update from git
+
+```sh
+cd lnd-auto-backup
+git pull
+./service/restart.sh 
+# you may be prompted to do `systemctl daemon-reload` if needed, then you need to restart it again
+```
 
 ---
 
