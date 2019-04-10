@@ -6,6 +6,7 @@ After=network.target
 
 [Service]
 Type=notify
+NotifyAccess=all
 Environment=LNDAB_HOME=/root/lnd-auto-backup
 Environment=LNDAB_LAUNCHED_BY_SYSTEMD=1
 ExecStart=/bin/bash -c '${LNDAB_HOME}/monitor.sh'
