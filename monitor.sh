@@ -19,6 +19,8 @@ LNDAB_VERBOSE=${LNDAB_VERBOSE}
 LNDAB_CHANNEL_BACKUP_PATH=${LNDAB_CHANNEL_BACKUP_PATH:-"$LND_HOME/data/chain/$LND_CHAIN/$LND_NETWORK/channel.backup"}
 LNDAB_FILE_CREATION_POLLING_TIME=${LNDAB_FILE_CREATION_POLLING_TIME:-1}
 LNDAB_INOTIFYWAIT_OPTS=${LNDAB_INOTIFYWAIT_OPTS:-"-q"}
+LNDAB_INOTIFYWAIT_PIPE=${LNDAB_INOTIFYWAIT_PIPE:-/tmp/lnd-auto-backup-pipe}
+EFFECTIVE_INOTIFYWAIT_PIPE="$LNDAB_INOTIFYWAIT_PIPE.$$"
 
 LNDAB_S3_BUCKET=${LNDAB_S3_BUCKET}
 LNDAB_S3_BACKUP_SCRIPT=${LNDAB_S3_BACKUP_SCRIPT:-$ROOT_DIR/backup-via-s3.sh}
@@ -30,6 +32,7 @@ LNDAB_CUSTOM_BACKUP_SCRIPT=${LNDAB_CUSTOM_BACKUP_SCRIPT}
 
 LNDAB_NOERR=0
 LNDAB_BACKUP_SCRIPT_NOT_FOUND=10
+LNDAB_INOTIFYWAIT_NO_PID=11
 
 if [[ -n "$LNDAB_S3_BUCKET" && ! -e "$LNDAB_S3_BACKUP_SCRIPT" ]]; then
   echo "the backup script does not exist at '$LNDAB_S3_BACKUP_SCRIPT', check LNDAB_S3_BACKUP_SCRIPT"
@@ -90,6 +93,7 @@ do_missing_channel_backup_workflow() {
 
 start_monitoring_changes() {
   notify STATUS="waiting for changes in '$LNDAB_CHANNEL_BACKUP_PATH'"
+  echo "waiting for changes in '$LNDAB_CHANNEL_BACKUP_PATH'"
 
   # The idea is to continuously monitor channel.backup via inotifywait and decide what to do by analyzing the output.
 
@@ -106,7 +110,18 @@ start_monitoring_changes() {
   # but enters it again via next main loop iteration. You can spot it in logs by seeing 'waiting for changes in ...'
   # reported again.
 
-  echo "waiting for changes in '$LNDAB_CHANNEL_BACKUP_PATH'"
+  local inotifywait_pipe=${EFFECTIVE_INOTIFYWAIT_PIPE}
+  mkfifo ${inotifywait_pipe}
+
+  local inotifywait_pid
+  nohup inotifywait ${LNDAB_INOTIFYWAIT_OPTS} -m --format '%e' "$LNDAB_CHANNEL_BACKUP_PATH" > ${inotifywait_pipe} &
+  inotifywait_pid=$!
+
+  if [[ -z "$inotifywait_pid" ]]; then
+    echo "unable to retrieve PID of inotifywait background process"
+    exit ${LNDAB_INOTIFYWAIT_NO_PID}
+  fi
+
   local events
   while read events; do
     local backup_needed=
@@ -141,12 +156,20 @@ start_monitoring_changes() {
       fi
       perform_backup
     fi
-  done < <(nohup inotifywait ${LNDAB_INOTIFYWAIT_OPTS} -m --format '%e' "$LNDAB_CHANNEL_BACKUP_PATH")
+  done < ${inotifywait_pipe}
+
+  # kill the inotifywait background job silently
+  set +e
+  kill ${inotifywait_pid} 2>&1 >/dev/null
+  wait ${inotifywait_pid} 2>/dev/null
+  set -e
+  rm ${inotifywait_pipe}
 }
 
 # ---------------------------------------------------------------------------------------------------------------------------
 
 function finish {
+  rm ${EFFECTIVE_INOTIFYWAIT_PIPE}
   echo "finished monitoring '$LNDAB_CHANNEL_BACKUP_PATH'"
 }
 trap finish EXIT
