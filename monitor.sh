@@ -30,23 +30,22 @@ LNDAB_RSYNC_BACKUP_SCRIPT=${LNDAB_RSYNC_BACKUP_SCRIPT:-$ROOT_DIR/backup-via-rsyn
 
 LNDAB_CUSTOM_BACKUP_SCRIPT=${LNDAB_CUSTOM_BACKUP_SCRIPT}
 
-LNDAB_NOERR=0
-LNDAB_BACKUP_SCRIPT_NOT_FOUND=10
-LNDAB_INOTIFYWAIT_NO_PID=11
+LNDAB_ERR_BACKUP_SCRIPT_NOT_FOUND=10
+LNDAB_ERR_INOTIFYWAIT_NO_PID=11
 
 if [[ -n "$LNDAB_S3_BUCKET" && ! -e "$LNDAB_S3_BACKUP_SCRIPT" ]]; then
   echo "the backup script does not exist at '$LNDAB_S3_BACKUP_SCRIPT', check LNDAB_S3_BACKUP_SCRIPT"
-  exit ${LNDAB_BACKUP_SCRIPT_NOT_FOUND}
+  exit ${LNDAB_ERR_BACKUP_SCRIPT_NOT_FOUND}
 fi
 
 if [[ -n "$LNDAB_RSYNC_TARGET" && ! -e "$LNDAB_RSYNC_BACKUP_SCRIPT" ]]; then
   echo "the backup script does not exist at '$LNDAB_RSYNC_BACKUP_SCRIPT', check LNDAB_RSYNC_BACKUP_SCRIPT"
-  exit ${LNDAB_BACKUP_SCRIPT_NOT_FOUND}
+  exit ${LNDAB_ERR_BACKUP_SCRIPT_NOT_FOUND}
 fi
 
 if [[ -n "$LNDAB_CUSTOM_BACKUP_SCRIPT" && ! -e "$LNDAB_CUSTOM_BACKUP_SCRIPT" ]]; then
   echo "the backup script does not exist at '$LNDAB_CUSTOM_BACKUP_SCRIPT', check LNDAB_CUSTOM_BACKUP_SCRIPT"
-  exit ${LNDAB_BACKUP_SCRIPT_NOT_FOUND}
+  exit ${LNDAB_ERR_BACKUP_SCRIPT_NOT_FOUND}
 fi
 
 # ---------------------------------------------------------------------------------------------------------------------------
@@ -119,7 +118,7 @@ start_monitoring_changes() {
 
   if [[ -z "$inotifywait_pid" ]]; then
     echo "unable to retrieve PID of inotifywait background process"
-    exit ${LNDAB_INOTIFYWAIT_NO_PID}
+    exit ${LNDAB_ERR_INOTIFYWAIT_NO_PID}
   fi
 
   local events
