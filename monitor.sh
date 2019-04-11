@@ -110,11 +110,11 @@ start_monitoring_changes() {
   # but enters it again via next main loop iteration. You can spot it in logs by seeing 'waiting for changes in ...'
   # reported again.
 
-  local inotifywait_pipe=${EFFECTIVE_INOTIFYWAIT_PIPE}
-  mkfifo ${inotifywait_pipe}
+  local inotifywait_pipe="$EFFECTIVE_INOTIFYWAIT_PIPE"
+  mkfifo "$inotifywait_pipe"
 
   local inotifywait_pid
-  nohup inotifywait ${LNDAB_INOTIFYWAIT_OPTS} -m --format '%e' "$LNDAB_CHANNEL_BACKUP_PATH" > ${inotifywait_pipe} &
+  nohup inotifywait ${LNDAB_INOTIFYWAIT_OPTS} -m --format '%e' "$LNDAB_CHANNEL_BACKUP_PATH" > "$inotifywait_pipe" &
   inotifywait_pid=$!
 
   if [[ -z "$inotifywait_pid" ]]; then
@@ -156,20 +156,20 @@ start_monitoring_changes() {
       fi
       perform_backup
     fi
-  done < ${inotifywait_pipe}
+  done < "$inotifywait_pipe"
 
   # kill the inotifywait background job silently
   set +e
   kill ${inotifywait_pid} 2>&1 >/dev/null
   wait ${inotifywait_pid} 2>/dev/null
   set -e
-  rm ${inotifywait_pipe}
+  rm "$inotifywait_pipe"
 }
 
 # ---------------------------------------------------------------------------------------------------------------------------
 
 function finish {
-  rm ${EFFECTIVE_INOTIFYWAIT_PIPE}
+  rm "$EFFECTIVE_INOTIFYWAIT_PIPE"
   echo "finished monitoring '$LNDAB_CHANNEL_BACKUP_PATH'"
 }
 trap finish EXIT
