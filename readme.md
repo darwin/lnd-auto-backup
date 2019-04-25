@@ -47,11 +47,14 @@ export LNDAB_CUSTOM_BACKUP_SCRIPT=path/to/your/script.sh
 #   export LNDAB_S3_BACKUP_SCRIPT=./backup-via-s3.sh
 #   export LNDAB_RSYNC_BACKUP_SCRIPT=./backup-via-rsync.sh
 ```
-4. modify `LNDAB_HOME` in `./service/lnd-auto-backup.service` to point to right directory
+4. modify `LNDAB_HOME` in `./service/lnd-auto-backup.service` to point to the right directory, also review other service settings
 5. `./service/install.sh`
 6. `./service/start.sh` - start it!
 7. `./service/status.sh` - just to check the status 
 8. `./service/enable.sh` - if it looks good, enable service launching after system restart
+
+Note: The service runs under the root privileges by default. You can change it by setting User/Group in `.service` config file. 
+You should perform `aws configure` under the same user. Or make sure `$HOME/.aws` folder is at expected place with correct permissions. 
 
 ### Typical workflow
 
