@@ -98,3 +98,11 @@ git pull
 
 Tested on Ubuntu 19.04 server. My lnd node runs in a docker container and I use this service to monitor changes of 
 `channel.backup` file mapped to host machine via a docker volume.
+
+<p align="center">
+  <a target="_blank" rel="noopener noreferrer" href="https://tiphub.io/user/651358055/tip?site=github">
+    <img src="https://tiphub.io/static/images/tip-button-light.png" alt="Tip darwin on TipHub" height="60">
+    <br />
+    My pubkey starts with <code>03e24db0</code>
+  </a>
+</p>
