@@ -96,5 +96,5 @@ git pull
 
 ---
 
-Tested on Ubuntu 18.10 server. My lnd node runs in a docker container and I use this service to monitor changes of 
+Tested on Ubuntu 19.04 server. My lnd node runs in a docker container and I use this service to monitor changes of 
 `channel.backup` file mapped to host machine via a docker volume.
